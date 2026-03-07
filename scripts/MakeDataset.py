@@ -347,11 +347,11 @@ def _build_parser() -> argparse.ArgumentParser:
         help="HuggingFace tokenizer name or repository path.",
     )
     p.add_argument(
-        "--max_entries", "-n", type=int, default=100_000,
+        "--max_entries", "-n", type=int, default=50000,
         help="Max output rows.",
     )
     p.add_argument(
-        "--per_file", type=int, default=100_000,
+        "--per_file", type=int, default=50000,
         help="Rows per output Parquet file.",
     )
     p.add_argument(
@@ -521,4 +521,3 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nInterrupted.", file=sys.stderr)
         sys.exit(130)
-
