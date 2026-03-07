@@ -401,7 +401,7 @@ def main(args: argparse.Namespace) -> None:
             torch.cuda.manual_seed_all(args.seed)
 
     # HuggingFace Rust tokenizer parallelism (safe in single-process mode).
-    os.environ.setdefault("TOKENIZERS_PARALLELISM", "true")
+    os.environ.setdefault("TOKENIZERS_PARALLELISM", "false")
 
     # -- Tokenizer -------------------------------------------------------- #
     logger.info("Loading tokenizer: %s", args.tokenizer)
@@ -521,3 +521,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print("\nInterrupted.", file=sys.stderr)
         sys.exit(130)
+
