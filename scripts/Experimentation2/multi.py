@@ -28,6 +28,7 @@ import os
 import random
 import sys
 import time
+from functools import partial                         # ← FIX 1 : import partial
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -339,7 +340,7 @@ def make_objective(
     val_ds,
     seed: int,
     device: torch.device,          # ← NOUVEAU : plus de global DEVICE
-    gpu_id: int,                   # ← NOUVEAU : pour pin_memory_device
+    gpu_id: int,                   # ← NOUVEAU : pour logging
     amp_dtype: torch.dtype,        # ← NOUVEAU : FP16 ou BF16
     log: logging.Logger,           # ← NOUVEAU : logger du worker
 ):
@@ -409,17 +410,22 @@ def make_objective(
 
             # ── 4. DataLoaders ───────────────────────────────────
             crf_mode = head_type == "crf"
-            collate = lambda batch: ner_collate_fn(batch, crf_mode=crf_mode)
+
+            # ← FIX 1 : functools.partial au lieu de lambda
+            #   Les lambdas imbriquées ne sont pas sérialisables (pickle)
+            #   par les workers DataLoader lancés via mp.spawn ("spawn"
+            #   start method).  functools.partial EST sérialisable.
+            collate = partial(ner_collate_fn, crf_mode=crf_mode)
 
             g_train = torch.Generator()
             g_train.manual_seed(seed)
 
             # ← CHANGÉ : tuning DataLoader pour maximiser l'usage CPU/RAM
+            # ← FIX 2 : supprimé pin_memory_device (déprécié PyTorch ≥ 2.x)
             dl_kwargs: Dict[str, Any] = dict(
                 collate_fn=collate,
                 num_workers=DATALOADER_WORKERS,
                 pin_memory=True,
-                pin_memory_device=f"cuda:{gpu_id}",    # ← DMA vers le bon GPU
                 persistent_workers=True,                 # ← pas de re-fork
                 prefetch_factor=PREFETCH_FACTOR,         # ← pipeline saturé
             )
@@ -603,12 +609,24 @@ def gpu_worker(
     # ── 2. Détection du dtype AMP optimal ───────────────────────────
     #    T4 = Turing (sm_75)  → FP16 seulement
     #    A100/H100 = Ampere+  → BF16 (plus stable pour DeBERTaV2)
-    if torch.cuda.is_bf16_supported():
+    #
+    # ← FIX 3 : torch.cuda.is_bf16_supported() peut renvoyer True sur
+    #   T4 dans les PyTorch récents (il vérifie le runtime CUDA, pas la
+    #   compute capability du GPU).  On vérifie donc directement la
+    #   compute capability : sm_80+ (Ampere) = BF16 natif.
+    cap = torch.cuda.get_device_capability(rank)
+    if cap[0] >= 8:                                   # Ampere sm_80+
         amp_dtype = torch.bfloat16
-        log.info("BF16 supporté — utilisation de bfloat16 pour AMP")
+        log.info(
+            "Compute capability %d.%d ≥ 8.0 — utilisation de bfloat16 pour AMP",
+            cap[0], cap[1],
+        )
     else:
         amp_dtype = torch.float16
-        log.info("BF16 non supporté (T4) — utilisation de float16 pour AMP")
+        log.info(
+            "Compute capability %d.%d < 8.0 — utilisation de float16 pour AMP",
+            cap[0], cap[1],
+        )
 
     # ── 3. Reproductibilité ─────────────────────────────────────────
     seed = args_dict["seed"]
