@@ -13,7 +13,7 @@
     --seed 42
 ```
 
-### Vérification du dataset et Split en train / test / val et  :
+### Vérification du dataset et Split en train / test / val  :
 
 ```py
 !python prepare_data.py --input ./dataset_50000.parquet --output-dir ./prepared_data --seed 42
