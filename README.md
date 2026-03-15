@@ -12,7 +12,7 @@ $ fastapi run wikilink
 
 > Attention : l'inférence s'effectue sur CPU par défaut.
 
-## Principe général
+## Procédure méthodologique
 
 Nous avons suivi quatre étapes :
 
@@ -30,9 +30,7 @@ Le modèle se compose de deux blocs :
 Nous utilisons [`almanach/camembertv2-base`](https://huggingface.co/almanach/camembertv2-base), un modèle RoBERTa pré-entraîné pour le français (~110 M de paramètres).
 Ce choix se justifie notamment parce qu'il a été entraîné sur plus de données francophones, dont une version plus récente de Wikipédia que la première version de camembert. Ses auteurs ([INRIA/ALMAnaCH](https://almanach.inria.fr/)) rapportent de meilleures performances que la première version de Camembert-base.
 
-**Fine-tuning :**
-
-Le fine-tuning réalisé dans [train.py](https://github.com/16arpi/wikilink/blob/main/scripts/train.py) réentraîne les deux dernières couches de CamemBERTv2-base (couches 10 et 11, (index 0-based, i.e. 11 et 12ème couches)). Cela permet d'adapter les représentations de CamemBERT à cette tâche NER spécifique tout en évitant un entraînement complet, qui serait plus coûteux.
+Ce modèle a été affiné avec le script [train.py](https://github.com/16arpi/wikilink/blob/main/scripts/train.py) qui réentraîne les deux dernières couches de CamemBERTv2-base (couches 10 et 11, (index 0-based, i.e. 11 et 12ème couches)). Cela permet d'adapter les représentations de CamemBERT à cette tâche NER spécifique tout en évitant un entraînement complet, qui serait plus coûteux.
 
 ### 2. Classifieur : MLP (Perceptron multicouche)
 
@@ -55,11 +53,12 @@ Chaque token de la séquence reçoit l'une des étiquettes suivantes :
 
 ## Corpus d'entraînement
 
+Le corpus nettoyé (2,24 Go, au format Parquet subdivisé en plusieurs *shards*) est disponible publiquement (à ce lien)[https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens]. Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas encore parfait.
+
+### Sous-échantillonnage
+
+Pour des contraintes de temps et de hardware (GPU L4), seule une sous-partie du corpus a été utilisée pour l'entraînement (~90 000 segments textuels, dont ~72 000 pour le *train*).
+
 ### Source
 
 Le corpus est construit à partir du **dump de Wikipédia français de février 2026**. Toutes les balises (XML, wikicode) ont été retirées **à l'exception des balises hyperliens** `[[…]]`, qui servent de « vérité terrain » pour l'annotation NER.
-
-### Corpus nettoyé
-
-Le corpus nettoyé (2,24 Go, au format Parquet subdivisé en plusieurs *shards*) est disponible publiquement :
-
