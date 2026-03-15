@@ -14,8 +14,17 @@ pip install -r requirements.txt
 fastapi run wikilink
 ```
 L'interface est ensuite accessible depuis [http://localhost:8000](http://localhost:8000).
-
 > Attention : l'inférence s'effectue sur CPU par défaut.
+
+<br>
+
+<p align="center"><strong>Exemple du fonctionnement avec une phrase</strong></p>
+
+<br>
+<p align="center">
+  <img src="exempleFonctionnement.svg" width="400">
+</p>
+
 
 ## Sections :
 
