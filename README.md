@@ -2,12 +2,16 @@
 
 **WikiLink** est un outil de détection et d'insertion automatique de [liens internes Wikipédia](https://fr.wikipedia.org/wiki/Aide:Liens_internes) (« liens bleus ») dans du texte brut français. Il repose sur un modèle de type NER entraîné à reconnaître les segments de texte devant être liés vers un autre article Wikipédia.
 
-## Usage (webapp)
-
-D'abord, installer les dépendances dans le `requirements.txt`. Ensuite, utiliser fastapi CLI avec :
+## Utilisation
 
 ```bash
-$ fastapi run wikilink
+git clone https://github.com/16arpi/wikilink.git
+cd wikilink
+pip install -r requirements.txt
+```
+
+```bash
+fastapi run wikilink
 ```
 
 > Attention : l'inférence s'effectue sur CPU par défaut.
@@ -49,7 +53,7 @@ Chaque token de la séquence reçoit l'une des étiquettes suivantes :
 
 ## Corpus d'entraînement
 
-Le corpus nettoyé (2,24 Go, au format Parquet subdivisé en plusieurs *shards*) est disponible publiquement (à ce lien)[https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens]. Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas encore parfait.
+Le corpus nettoyé (2,24 Go, au format Parquet subdivisé en plusieurs *shards*) est disponible publiquement [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens). Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas encore parfait.
 
 Fichiers présents dans ce repository :
 
@@ -63,3 +67,15 @@ Pour des contraintes de temps et de hardware (GPU L4), seule une sous-partie du 
 ### Source
 
 Le corpus est construit à partir du **dump de Wikipédia français de février 2026**. Toutes les balises (XML, wikicode) ont été retirées **à l'exception des balises hyperliens** `[[…]]`, qui servent de « vérité terrain » pour l'annotation NER.
+
+
+## Remarques méthodologiques et pistes futures
+
+### Note sur le ratio de liens
+
+Les [guidelines de Wikipédia](https://en.wikipedia.org/wiki/Wikipedia:Manual_of_Style/Linking) recommandent de ne lier que la première occurrence d'un terme dans un article :
+
+> « As a rule of thumb, link only the first occurrence of a term in both the lead and body of the article. »
+
+Cela pourrait entraîner *in fine* une légère sous-annotation par le modèle NER (. Nous espérons que la pondération des classes mise en oeuvre dans [train.py](https://github.com/16arpi/wikilink/blob/main/scripts/train.py) atténue cet éventuel biais. Il serait possible de stratifier les articles du corpus en fonction de leur densité de liens hypertextes, afin de réduire cet éventuel biais lié à la pratique wikipédienne de ne lier que la première occurrence d'un terme.
+
