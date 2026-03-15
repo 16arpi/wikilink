@@ -50,8 +50,6 @@ Les embeddings de la dernière couche cachée de CamemBERT sont transmis à un r
 
 ## Corpus d'entraînement
 
-## Source
-
 Le corpus est construit à partir du dump de Wikipédia français de février 2026. Toutes les balises (XML, wikicode) ont été retirées à l'exception des balises hyperliens `[[…]]`.
 
 La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens). Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas parfait.
@@ -68,7 +66,7 @@ Fichiers présents dans ce repository :
 * `data/parquet/dataset.parquet` : wikipedia.csv augmenté des tokenisations avec du texte à l'aie de du tokeniseur de `almanach/camembertv2-base`
 
 
-## Schéma d'annotation BIO
+### Schéma d'annotation BIO
 
 Chaque token de la séquence reçoit l'une des étiquettes suivantes :
 
