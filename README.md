@@ -41,7 +41,7 @@ Le modèle NER se compose de deux blocs :
 Nous utilisons [`almanach/camembertv2-base`](https://huggingface.co/almanach/camembertv2-base), un modèle RoBERTa pré-entraîné pour le français (~110 M de paramètres).
 Ce choix se justifie notamment parce qu'il a été entraîné sur plus de données francophones, dont une version plus récente de Wikipédia que la première version de camembert. Ses auteurs ([INRIA/ALMAnaCH](https://almanach.inria.fr/)) rapportent de meilleures performances que la première version de Camembert-base.
 
-Ce modèle a été affiné avec le script [train.py](https://github.com/16arpi/wikilink/blob/main/scripts/train.py) qui réentraîne les deux dernières couches de CamemBERTv2-base (11 et 12ème couches). Cela permet d'adapter les représentations de CamemBERT à cette tâche NER spécifique tout en évitant un entraînement complet, qui serait plus coûteux.
+Ce modèle a été affiné avec le script [`train.py`](scripts/train.py) qui réentraîne les deux dernières couches de CamemBERTv2-base (11 et 12ème couches). Cela permet d'adapter les représentations de CamemBERT à cette tâche NER spécifique tout en évitant un entraînement complet, qui serait plus coûteux.
 
 ### 2. Classifieur : MLP (Perceptron multicouche)
 
@@ -54,21 +54,16 @@ Le corpus est construit à partir du dump de Wikipédia français de février 20
 
 La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens). Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas parfait.
 
-
 ### Sous-échantillonnage
 
 Pour des contraintes de temps et de hardware, seule une sous-partie du corpus a été utilisée pour l'entraînement (~90 000 segments textuels, dont ~72 000 pour le *train*).
 
-
 Fichiers présents dans ce repository :
 
-* `data/csv/wikipedia.csv` : réduction de la collecte Wikipedia initiale pour ne garder que 100 000 paragraphes.
-* `data/parquet/dataset.parquet` : wikipedia.csv augmenté des tokenisations avec du texte à l'aie de du tokeniseur de `almanach/camembertv2-base`
+* [`wikipedia.csv`](data/wikipedia.csv) : réduction de la collecte Wikipedia initiale pour ne garder que 100 000 paragraphes.
+* [`dataset.parquet`](data/dataset.parquet) : wikipedia.csv augmenté des tokenisations avec du texte à l'aie de du tokeniseur de `almanach/camembertv2-base`.
 
-
-### Schéma d'annotation BIO
-
-Chaque token de la séquence reçoit l'une des étiquettes suivantes :
+Plus précisément, dans [`dataset.parquet`](data/dataset.parquet), chaque token de la séquence reçoit l'une des étiquettes suivantes :
 
 | Étiquette | Valeur | Signification |
 |-----------|--------|---------------|
