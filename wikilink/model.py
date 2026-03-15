@@ -108,6 +108,14 @@ class WikiLink:
                     result.append(text[last_char_idx:char_start])
                 last_char_idx = char_start
 
+        if is_in_link:
+            temp_link.append(text[last_char_idx:])
+            link_text = quote(''.join(temp_link))
+            result += [f'<a href="https://fr.wikipedia.org/w/index.php?search={link_text}" >']
+            result += temp_link
+            result += ["</a>"]
+            last_char_idx = len(text)
+
         result.append(text[last_char_idx:])
 
         return ''.join(result)
