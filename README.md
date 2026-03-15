@@ -17,6 +17,12 @@ L'interface est ensuite accessible depuis [http://localhost:8000](http://localho
 
 > Attention : l'inférence s'effectue sur CPU par défaut.
 
+1. [Procédure méthodologique](#procédure-méthodologique)
+2. [Architecture du modèle NER](#architecture-du-modèle-ner)
+3. [Corpus d'entraînement](#corpus-dentraînement)
+
+
+
 ## Procédure méthodologique
 
 Nous avons suivi quatre étapes :
@@ -41,16 +47,6 @@ Ce modèle a été affiné avec le script [train.py](https://github.com/16arpi/w
 
 Les embeddings de la dernière couche cachée de CamemBERT sont transmis à un réseau MLP défini avec PyTorch. Le MLP reçoit un vecteur de dimension 768 (taille des embeddings CamemBERTv2-base) pour chaque token de la séquence et produit 3 logits correspondant aux 3 classes BIO.
 
-## Schéma d'annotation BIO
-
-Chaque token de la séquence reçoit l'une des étiquettes suivantes :
-
-| Étiquette | Valeur | Signification |
-|-----------|--------|---------------|
-| `O`       | `0`    | Token hors lien (*Outside*) |
-| `B-Link`  | `1`    | Premier token d'un lien (*Beginning*) |
-| `I-Link`  | `2`    | Token intérieur d'un lien (*Inside*) |
-| *Spécial* | `-100` | Token spécial (CLS, SEP, padding) — ignoré par la loss |
 
 ## Corpus d'entraînement
 
@@ -72,6 +68,17 @@ Fichiers présents dans ce repository :
 * `data/parquet/dataset.parquet` : wikipedia.csv augmenté des tokenisations avec du texte à l'aie de du tokeniseur de `almanach/camembertv2-base`
 
 
+## Schéma d'annotation BIO
+
+Chaque token de la séquence reçoit l'une des étiquettes suivantes :
+
+| Étiquette | Valeur | Signification |
+|-----------|--------|---------------|
+| `O`       | `0`    | Token hors lien (*Outside*) |
+| `B-Link`  | `1`    | Premier token d'un lien (*Beginning*) |
+| `I-Link`  | `2`    | Token intérieur d'un lien (*Inside*) |
+| *Spécial* | `-100` | Token spécial (CLS, SEP, padding) — ignoré par la loss |
+
 ## Remarques méthodologiques
 
 ### Note sur le ratio de liens
@@ -80,7 +87,9 @@ Les [guidelines de Wikipédia](https://en.wikipedia.org/wiki/Wikipedia:Manual_of
 
 > « As a rule of thumb, link only the first occurrence of a term in both the lead and body of the article. »
 
-Cela pourrait entraîner *in fine* une légère sous-annotation par le modèle NER (. Nous espérons que la pondération des classes mise en oeuvre dans [`scripts/weights.py`](scripts/weights.py) atténue cet éventuel biais. Il serait possible de stratifier les articles du corpus en fonction de leur densité de liens hypertextes, afin de réduire cet éventuel biais lié à la pratique wikipédienne de ne lier que la première occurrence d'un terme.
+Cela pourrait entraîner *in fine* une légère sous-annotation par le modèle NER. Nous espérons que la pondération des classes mise en oeuvre dans [`weights.py`](scripts/weights.py) atténue cet éventuel biais.
+
+Il serait possible de stratifier les articles du corpus en fonction de leur densité de liens hypertextes, afin de réduire cet éventuel biais lié à la pratique wikipédienne de ne lier que la première occurrence d'un terme.
 
 ## Pistes futures
 
