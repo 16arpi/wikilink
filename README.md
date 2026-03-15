@@ -2,6 +2,16 @@
 
 **WikiLink** est un outil de détection et d'insertion automatique de [liens internes Wikipédia](https://fr.wikipedia.org/wiki/Aide:Liens_internes) (« liens bleus ») dans du texte brut français. Il repose sur un modèle de type NER entraîné à reconnaître les segments de texte devant être liés vers un autre article Wikipédia.
 
+## Usage (webapp)
+
+D'abord, installer les dépendances dans le `requirements.txt`. Ensuite, utiliser fastapi CLI avec :
+
+```bash
+$ fastapi run wikilink
+```
+
+> Attention : l'inférence s'effectue sur CPU par défaut.
+
 ## Principe général
 
 Nous avons suivi quatre étapes :
@@ -18,7 +28,7 @@ Le modèle se compose de deux blocs :
 ### 1. CamemBERTv2-base
 
 Nous utilisons [`almanach/camembertv2-base`](https://huggingface.co/almanach/camembertv2-base), un modèle RoBERTa pré-entraîné pour le français (~110 M de paramètres).
-Il a été entraîné sur une version plus récente de Wikipédia et d'autres corpus francophones ; ses auteurs ([INRIA/ALMAnaCH](https://almanach.inria.fr/)) rapportent de meilleures performances que la première version de CamemBERT-base.
+Ce choix se justifie notamment parce qu'il a été entraîné sur plus de données francophones, dont une version plus récente de Wikipédia que la première version de camembert. Ses auteurs ([INRIA/ALMAnaCH](https://almanach.inria.fr/)) rapportent de meilleures performances que la première version de Camembert-base.
 
 **Fine-tuning :**
 
@@ -41,14 +51,15 @@ Chaque token de la séquence reçoit l'une des étiquettes suivantes :
 | `O`       | `0`    | Token hors lien (*Outside*) |
 | `B-Link`  | `1`    | Premier token d'un lien (*Beginning*) |
 | `I-Link`  | `2`    | Token intérieur d'un lien (*Inside*) |
-| *Spécial* | `-100` | Token spécial (CLS, SEP, padding) — **ignoré** par la loss |
+| *Spécial* | `-100` | Token spécial (CLS, SEP, padding) — ignoré par la loss |
 
-## Usage (webapp)
+## Corpus d'entraînement
 
-D'abord, installer les dépendances dans le `requirements.txt`. Ensuite, utiliser fastapi CLI avec :
+### Source
 
-```bash
-$ fastapi run wikilink
-```
+Le corpus est construit à partir du **dump de Wikipédia français de février 2026**. Toutes les balises (XML, wikicode) ont été retirées **à l'exception des balises hyperliens** `[[…]]`, qui servent de « vérité terrain » pour l'annotation NER.
 
-> Attention : l'inférence s'effectue sur CPU par défaut.
+### Corpus nettoyé
+
+Le corpus nettoyé (2,24 Go, au format Parquet subdivisé en plusieurs *shards*) est disponible publiquement :
+
