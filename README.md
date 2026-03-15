@@ -54,20 +54,22 @@ Chaque token de la séquence reçoit l'une des étiquettes suivantes :
 
 ## Corpus d'entraînement
 
-Le corpus nettoyé (2,24 Go, au format Parquet subdivisé en plusieurs *shards*) est disponible publiquement [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens). Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas encore parfait.
+## Source
+
+Le corpus est construit à partir du dump de Wikipédia français de février 2026. Toutes les balises (XML, wikicode) ont été retirées à l'exception des balises hyperliens `[[…]]`.
+
+La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens). Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas parfait.
+
+
+### Sous-échantillonnage
+
+Pour des contraintes de temps et de hardware, seule une sous-partie du corpus a été utilisée pour l'entraînement (~90 000 segments textuels, dont ~72 000 pour le *train*).
+
 
 Fichiers présents dans ce repository :
 
 * `data/csv/wikipedia.csv` : réduction de la collecte Wikipedia initiale pour ne garder que 100 000 paragraphes.
 * `data/parquet/dataset.parquet` : wikipedia.csv augmenté des tokenisations avec du texte à l'aie de du tokeniseur de `almanach/camembertv2-base`
-
-### Sous-échantillonnage
-
-Pour des contraintes de temps et de hardware (GPU L4), seule une sous-partie du corpus a été utilisée pour l'entraînement (~90 000 segments textuels, dont ~72 000 pour le *train*).
-
-### Source
-
-Le corpus est construit à partir du dump de Wikipédia français de février 2026. Toutes les balises (XML, wikicode) ont été retirées **à l'exception des balises hyperliens** `[[…]]`, qui servent de « vérité terrain » pour l'annotation NER.
 
 
 ## Remarques méthodologiques
