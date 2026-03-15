@@ -18,7 +18,7 @@ L'interface est ensuite accessible depuis [http://localhost:8000](http://localho
 
 <br>
 
-<p align="center"><strong>Exemple du fonctionnement avec une phrase</strong></p>
+<p align="center"><strong>Exemple d'utilisation</strong></p>
 
 <br>
 <p align="center">
