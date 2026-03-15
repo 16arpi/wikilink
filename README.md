@@ -17,9 +17,12 @@ L'interface est ensuite accessible depuis [http://localhost:8000](http://localho
 
 > Attention : l'inférence s'effectue sur CPU par défaut.
 
+## Sections :
+
 1. [Procédure méthodologique](#procédure-méthodologique)
 2. [Architecture du modèle NER](#architecture-du-modèle-ner)
 3. [Corpus d'entraînement](#corpus-dentraînement)
+4. [Remarques méthodologiques et pistes futures](remarques-méthodologiques-et-pistes-futures)
 
 
 
@@ -54,23 +57,22 @@ La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](ht
 
 ### Sous-échantillonnage
 
-Pour des contraintes de temps et de hardware, seule une sous-partie du corpus a été utilisée pour l'entraînement (~90 000 segments textuels, dont ~72 000 pour le *train*).
+Pour des contraintes de temps et de hardware, seule une sous-partie du corpus a été utilisée pour l'entraînement (100 000 segments textuels, dont ~72 000 pour le *train*). Cette sous-partie est disponible dans le fichier [`wikipedia.csv`](data/wikipedia.csv).
 
-Fichiers présents dans ce repository :
 
-* [`wikipedia.csv`](data/wikipedia.csv) : réduction de la collecte Wikipedia initiale pour ne garder que 100 000 paragraphes.
-* [`dataset.parquet`](data/dataset.parquet) : wikipedia.csv augmenté des tokenisations avec du texte à l'aie de du tokeniseur de `almanach/camembertv2-base`.
+### Préparation du jeu de données
 
-Plus précisément, dans [`dataset.parquet`](data/dataset.parquet), chaque token de la séquence reçoit l'une des étiquettes suivantes :
+Le script [`datasets.py`](scripts/datasets.py) convertit le corpus nettoyé en un jeu de données prêt à l'entraînement. Ce script produit [`dataset.parquet`](data/dataset.parquet) contenant les colonnes suivantes :
 
-| Étiquette | Valeur | Signification |
-|-----------|--------|---------------|
-| `O`       | `0`    | Token hors lien (*Outside*) |
-| `B-Link`  | `1`    | Premier token d'un lien (*Beginning*) |
-| `I-Link`  | `2`    | Token intérieur d'un lien (*Inside*) |
-| *Spécial* | `-100` | Token spécial (CLS, SEP, padding) — ignoré par la loss |
+| Colonne           | Type                | Description |
+|-------------------|---------------------|-------------|
+| `text`            | `str`               | Texte original avec les balises `[[…]]` |
+| `input`           | `list[int]`         | Les `input_ids` : séquence de tokens encodés par le tokenizer |
+| `attention_mask`  | `list[int]`         | Masque d'attention : `1` pour les vrais tokens, `0` pour le padding — permet au modèle d'ignorer les positions de remplissage |
+| `offset_mapping`  | `list[tuple[int]]`  | Correspondance entre chaque token et sa position `(début, fin)` dans le texte source — sert à retrouver le texte original à partir des tokens |
+| `output`          | `list[int]`         | Étiquettes BIO : `0` (Token hors lien (*Outside*)), `1` (Premier token d'un lien (*Beginning*)), `2` (Token intérieur d'un lien (*Inside*)), ou `-100` (token spécial (CLS, SEP, padding), ignoré par la loss) |
 
-## Remarques méthodologiques
+## Remarques méthodologiques et pistes futures
 
 ### Note sur le ratio de liens
 
@@ -82,6 +84,7 @@ Cela pourrait entraîner *in fine* une légère sous-annotation par le modèle N
 
 Il serait possible de stratifier les articles du corpus en fonction de leur densité de liens hypertextes, afin de réduire cet éventuel biais lié à la pratique wikipédienne de ne lier que la première occurrence d'un terme.
 
-## Pistes futures
+### Pistes futures
 
 - L'INRIA propose également [`almanach/camembertav2-base`](https://huggingface.co/almanach/camembertav2-base), une variante basée sur l'architecture DeBERTaV2 (au lieu de RoBERTa). Des tests préliminaires suggèrent qu'un MLP entraîné sur ce modèle pourrait offrir de très bonnes performances. Toutefois, DeBERTaV2 est plus coûteux en calcul ce qui augmente le temps d'entraînement et les besoins en mémoire GPU.
+- Tester le même modèle mais avec une couche linéaire par dessus afin de comparer les performances MLP _vs_ modèle linéaire.
