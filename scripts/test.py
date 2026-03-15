@@ -52,6 +52,7 @@ dl_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True, num_work
 size = len(test)
 num_batches = size // BATCH_SIZE + 1
 
+# Initialisation du modèle
 model = BertLinkAnnotator(bert).to("cuda")
 checkpoint = torch.load(CHECKPOINT_PATH, map_location=torch.device("cuda"))
 missing_keys, unexpected_keys = model.load_state_dict(checkpoint, strict=False)
