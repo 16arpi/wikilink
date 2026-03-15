@@ -53,7 +53,7 @@ Les embeddings de la dernière couche cachée de CamemBERT sont transmis à un r
 
 Le corpus est construit à partir du dump de Wikipédia français de février 2026. Toutes les balises (XML, wikicode) ont été retirées à l'exception des balises hyperliens `[[…]]`.
 
-La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-first-512-tokens). Ce corpus résulte de plusieurs étapes de nettoyage successives mais n'est pas parfait.
+La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-fr-fevrier2026-presqueclean), il contient 1,7 millions de lignes de petits wikipédia découpés. Bien que ce corpus résulte de plusieurs étapes de nettoyage successives, il n'est pas parfait.
 
 ### Sous-échantillonnage
 
