@@ -36,6 +36,7 @@ Nous avons suivi quatre étapes :
 
 Le modèle NER se compose de deux blocs :
 
+![pipeline](pipeline.svg)
 ### 1. CamemBERTv2-base
 
 Nous utilisons [`almanach/camembertv2-base`](https://huggingface.co/almanach/camembertv2-base), un modèle RoBERTa pré-entraîné pour le français (~110 M de paramètres).
