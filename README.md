@@ -88,3 +88,7 @@ Il serait possible de stratifier les articles du corpus en fonction de leur dens
 
 - L'INRIA propose également [`almanach/camembertav2-base`](https://huggingface.co/almanach/camembertav2-base), une variante basée sur l'architecture DeBERTaV2 (au lieu de RoBERTa). Des tests préliminaires suggèrent qu'un MLP entraîné sur ce modèle pourrait offrir de très bonnes performances. Toutefois, DeBERTaV2 est plus coûteux en calcul ce qui augmente le temps d'entraînement et les besoins en mémoire GPU.
 - Tester le même modèle mais avec une couche linéaire par dessus afin de comparer les performances MLP _vs_ modèle linéaire.
+
+### Exemple d'utilisation :
+
+![example](example.svg)
