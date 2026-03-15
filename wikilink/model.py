@@ -108,6 +108,9 @@ class WikiLink:
                     result.append(text[last_char_idx:char_start])
                 last_char_idx = char_start
 
+        # Supprimer tout lien en attente qui s'étend jusqu'au tout dernier token.
+        # Sans cela, temp_link est discrètement ignoré lorsqu'aucun token dont l'étiquette est égale à 0
+        # ne suit le dernier token du lien.
         if is_in_link:
             temp_link.append(text[last_char_idx:])
             link_text = quote(''.join(temp_link))
@@ -119,7 +122,3 @@ class WikiLink:
         result.append(text[last_char_idx:])
 
         return ''.join(result)
-
-
-
-
