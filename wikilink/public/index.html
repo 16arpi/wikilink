@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr" >
+    <head>
+        <title>Wikilink Generator</title>
+        <meta charset="utf-8" />
+        <style>
+            body {
+                margin: 10px;
+                padding: 10px;
+                max-width: 700px;
+                margin: 0 auto;
+
+                font-family: sans-serif;
+            }
+
+            body > * {
+                display: block;
+                margin: 1em 0;
+                width: 100%;
+                font-size: 14pt;
+            }
+
+            body textarea {
+                border: 1px solid #aaa;
+                height: 200px;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+            body #result {
+                background: #fefae0;
+                padding: 10px;
+                box-sizing: border-box;
+            }
+
+            body #result a {
+                color: #36c;
+            }
+
+            script {
+                display: none;
+            }
+
+
+
+        </style>
+    </head>
+    <body data-theme="light">
+        <h2>Wikilink Generator</h2>
+        <p>Plain text to Wikipedia paragraphs full of wiki links! </p>
+        <textarea id="text" >La Tsar Bomba (en russe : Царь-бомба), ou RDS-202 (en russe : РДС-202) ou encore « Objet 602 » (en russe : изделие 602)[1], est une bombe à hydrogène conçue par l’industrie nucléaire de l'Union soviétique, qui explose le 30 octobre 1961.</textarea>
+        <input id="submit" type="button" value="Annoter" />
+        <p id="result" ></p>
+        <script>
+            const textarea = document.getElementById("text");
+            const button = document.getElementById("submit");
+            const result = document.getElementById("result");
+
+            button.onclick = () => {
+                button.disabled = true
+                fetch("/generate", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        text: textarea.value
+                    })
+                }).then(res => {
+                    button.disabled = false
+                    res.json().then(data => {
+                        result.innerHTML = data.html;
+                    })
+                }).catch(() => {
+                    button.disabled = false
+                })
+            }
+        </script>
+    </body>
+</html>
