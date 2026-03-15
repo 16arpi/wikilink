@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+
+from urllib.parse import quote
 from transformers import AutoTokenizer, AutoModel
 
 HG_BERT = "almanach/camembertv2-base"
@@ -78,23 +80,32 @@ class WikiLink:
         result = []
         last_char_idx = 0
         is_in_link = False
-
+        temp_link = []
+        # https://fr.wikipedia.org/w/index.php?search=
         for (char_start, char_end), label in zip(mapping, preds):
             if char_start == char_end:
                 continue
 
             if label > 0:
-                result.append(text[last_char_idx:char_start])
-                if not is_in_link:
-                    result.append("<a href=\"#\" >")
+                if is_in_link:
+                    temp_link.append(text[last_char_idx:char_start])
+                else:
+                    result.append(text[last_char_idx:char_start])
                     is_in_link = True
                 last_char_idx = char_start
 
             elif label == 0:
-                result.append(text[last_char_idx:char_start])
                 if is_in_link:
-                    result.append("</a>")
+                    temp_link.append(text[last_char_idx:char_start])
                     is_in_link = False
+                    link_text = quote(''.join(temp_link))
+                    result += [f"<a href=\"https://fr.wikipedia.org/w/index.php?search={link_text}\" >"]
+                    result += temp_link
+                    result += ["</a>"]
+                    temp_link = []
+
+                else:
+                    result.append(text[last_char_idx:char_start])
                 last_char_idx = char_start
 
         result.append(text[last_char_idx:])
