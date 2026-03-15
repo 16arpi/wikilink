@@ -53,7 +53,7 @@ Les embeddings de la dernière couche cachée de CamemBERT sont transmis à un r
 
 Le corpus est construit à partir du dump de Wikipédia français de février 2026. Toutes les balises (XML, wikicode) ont été retirées à l'exception des balises hyperliens `[[…]]`.
 
-La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-fr-fevrier2026-presqueclean), il contient 1,7 millions de lignes de petits wikipédia découpés. Bien que ce corpus résulte de plusieurs étapes de nettoyage successives, il n'est pas parfait.
+La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-fr-fevrier2026-presqueparfait), il contient 1,7 millions de lignes de petits textes de wikipédia FR. Bien que ce corpus résulte de plusieurs étapes de nettoyage successives, il n'est pas parfait.
 
 ### Sous-échantillonnage
 
@@ -87,8 +87,10 @@ Il serait possible de stratifier les articles du corpus en fonction de leur dens
 ### Pistes futures
 
 - L'INRIA propose également [`almanach/camembertav2-base`](https://huggingface.co/almanach/camembertav2-base), une variante basée sur l'architecture DeBERTaV2 (au lieu de RoBERTa). Des tests préliminaires suggèrent qu'un MLP entraîné sur ce modèle pourrait offrir de très bonnes performances. Toutefois, DeBERTaV2 est plus coûteux en calcul ce qui augmente le temps d'entraînement et les besoins en mémoire GPU.
-- Tester le même modèle mais avec une couche linéaire par dessus afin de comparer les performances MLP _vs_ modèle linéaire.
+- Tester le même modèle mais avec une couche linéaire par dessus afin de comparer les performances MLP _versus_ classifieur linéaire.
+- Continuer l'entraînement avec le reste du corpus et voir si les performances peuvent s'améliorer.
 
-### Exemple d'utilisation :
+
+### Vrais exemples d'utilisation :
 
 ![example](example.svg)
