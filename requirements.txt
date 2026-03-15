@@ -6,4 +6,4 @@ datasets
 scikit-learn
 tqdm
 pandas
-
+fastapi[standard]
