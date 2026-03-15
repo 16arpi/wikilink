@@ -1,6 +1,6 @@
 # WikiLink
 
-**WikiLink** est un outil de détection et d'insertion automatique de [liens internes Wikipédia](https://fr.wikipedia.org/wiki/Aide:Liens_internes) (« liens bleus ») dans du texte brut français. Il repose sur un modèle de type NER entraîné à reconnaître les segments de texte devant être liés vers un autre article Wikipédia.
+**WikiLink** est un outil de détection et d'insertion automatique de [liens internes Wikipédia](https://fr.wikipedia.org/wiki/Aide:Liens_internes) (Hyperliens bleus) dans du texte brut français. Il repose sur un modèle de type NER entraîné à reconnaître les segments de texte devant être liés vers un autre article Wikipédia.
 
 ## Utilisation
 
@@ -13,6 +13,7 @@ pip install -r requirements.txt
 ```bash
 fastapi run wikilink
 ```
+L'interface est ensuite accessible depuis [http://localhost:8000](http://localhost:8000).
 
 > Attention : l'inférence s'effectue sur CPU par défaut.
 
@@ -66,10 +67,10 @@ Pour des contraintes de temps et de hardware (GPU L4), seule une sous-partie du 
 
 ### Source
 
-Le corpus est construit à partir du **dump de Wikipédia français de février 2026**. Toutes les balises (XML, wikicode) ont été retirées **à l'exception des balises hyperliens** `[[…]]`, qui servent de « vérité terrain » pour l'annotation NER.
+Le corpus est construit à partir du dump de Wikipédia français de février 2026. Toutes les balises (XML, wikicode) ont été retirées **à l'exception des balises hyperliens** `[[…]]`, qui servent de « vérité terrain » pour l'annotation NER.
 
 
-## Remarques méthodologiques et pistes futures
+## Remarques méthodologiques
 
 ### Note sur le ratio de liens
 
@@ -77,5 +78,8 @@ Les [guidelines de Wikipédia](https://en.wikipedia.org/wiki/Wikipedia:Manual_of
 
 > « As a rule of thumb, link only the first occurrence of a term in both the lead and body of the article. »
 
-Cela pourrait entraîner *in fine* une légère sous-annotation par le modèle NER (. Nous espérons que la pondération des classes mise en oeuvre dans [train.py](https://github.com/16arpi/wikilink/blob/main/scripts/train.py) atténue cet éventuel biais. Il serait possible de stratifier les articles du corpus en fonction de leur densité de liens hypertextes, afin de réduire cet éventuel biais lié à la pratique wikipédienne de ne lier que la première occurrence d'un terme.
+Cela pourrait entraîner *in fine* une légère sous-annotation par le modèle NER (. Nous espérons que la pondération des classes mise en oeuvre dans [`scripts/weights.py`](scripts/weights.py) atténue cet éventuel biais. Il serait possible de stratifier les articles du corpus en fonction de leur densité de liens hypertextes, afin de réduire cet éventuel biais lié à la pratique wikipédienne de ne lier que la première occurrence d'un terme.
 
+## Pistes futures
+
+- L'INRIA propose également [`almanach/camembertav2-base`](https://huggingface.co/almanach/camembertav2-base), une variante basée sur l'architecture DeBERTaV2 (au lieu de RoBERTa). Des tests préliminaires suggèrent qu'un MLP entraîné sur ce modèle pourrait offrir de très bonnes performances. Toutefois, DeBERTaV2 est plus coûteux en calcul ce qui augmente le temps d'entraînement et les besoins en mémoire GPU.
