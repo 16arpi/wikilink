@@ -18,15 +18,22 @@ class BertLinkAnnotator(nn.Module):
 
         self.bert = camembert
 
-        # --- LA LIGNE CLÉ : On gèle BERT ---
+        # On ne veut pas ré-entraîner BERT, ce serait trop coûteux...
         for param in self.bert.parameters():
             param.requires_grad = False
 
+        # ...mais on s'autorise le fine-tuning des 2 dernières couches
+        # de BERT car ça améliore les performances
         for name, param in self.bert.named_parameters():
             if "encoder.layer.10" in name or "encoder.layer.11" in name or "pooler" in name:
                 param.requires_grad = True
                 # Optionnel: print(f"Dégelé : {name}") # Pour vérifier au lancement
 
+        # Les embeddings de BERT sont envoyés à notre MLP
+        # qui se compose d'une première couche dense de la taille embeddings x sequence length
+        # puis une couche d'activation ReLU, puis un DropOut
+        # puis une couche cachée de 256 noeuds
+        # puis une activation, puis notre projection linéaire de la taille de nos classes (3)
         self.dropout = nn.Dropout(0.1)
         self.mlp = nn.Sequential(
             nn.Linear(768, 512),

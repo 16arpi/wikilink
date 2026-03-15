@@ -3,7 +3,7 @@ import re
 import pandas as pd
 import tqdm
 
-from transformers import CamembertTokenizer, AutoTokenizer
+from transformers import AutoTokenizer
 
 PARQUETS_DIR = "./data/parquets"
 CSV_INPUT = "./data/wikipedia.csv"
@@ -13,6 +13,10 @@ PARQUET_OUTPUT = "./data/dataset.parquet"
 
 LINK = re.compile(r'\[\[(.*?)\]\]')
 
+
+# Cette fonction permet de :
+# 1. enlever les balises mediawiki
+# 2. recupérer les segments de caractères liés à un lien
 def links(string):
     links = [(a.group(), a.group(1), a.start(), a.end()) for a in LINK.finditer(string)]
 
@@ -59,6 +63,10 @@ def links(string):
 
     return raw, segments
 
+# Cette fonction permet de construire deux ensembles
+# d'index de caractères :
+# 1. pour les caractères hors lien
+# 2. pour les caractères liens$
 def get_in_out_sets(segments):
     in_set = set()
     out_set = set()
