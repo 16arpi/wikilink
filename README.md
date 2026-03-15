@@ -34,12 +34,12 @@ Nous avons suivi quatre étapes :
 
 ## Architecture du modèle NER
 
-Le modèle NER se compose d'un bloc encoder (CamemBERTv2-base) et d'un bloc MLP (Perceptron multicouche) :
+Le modèle NER se compose d'un bloc transformeur-encoder (CamemBERTv2-base) suivi d'un bloc MLP (Perceptron multicouche) :
 
 ![schema](schema_ner_model.svg)
 
 Nous utilisons [`almanach/camembertv2-base`](https://huggingface.co/almanach/camembertv2-base), un modèle RoBERTa pré-entraîné pour le français (~110 M de paramètres).
-Ce choix se justifie notamment parce qu'il a été entraîné sur plus de données francophones, dont une version plus récente de Wikipédia que la première version de camembert. Ses auteurs ([INRIA/ALMAnaCH](https://almanach.inria.fr/)) rapportent de meilleures performances que la première version de Camembert-base.
+Ce choix se justifie notamment parce qu'il a été entraîné sur plus de données francophones, dont une version plus récente de Wikipédia que la première version de camemBERT. Ses auteurs ([INRIA/ALMAnaCH](https://almanach.inria.fr/)) rapportent de meilleures performances que la première version de CamemBERT.
 
 Ce modèle a été affiné avec le script [`train.py`](scripts/train.py) qui réentraîne les deux dernières couches de CamemBERTv2-base (11 et 12ème couches). Cela permet d'adapter les représentations de CamemBERT à cette tâche NER spécifique tout en évitant un entraînement complet, qui serait plus coûteux.
 
