@@ -60,8 +60,7 @@ Les embeddings de la dernière couche cachée de CamemBERT sont transmis à un r
 
 ## Corpus d'entraînement
 
-Le corpus est construit à partir du dump de Wikipédia français de février 2026 disponible depuis [ce lien](https://dumps.wikimedia.org/frwiki/20260201/). La toute première étape a consisté à retirer toutes les balises (XML, wikicode) à l'exception des balises hyperliens `[[…]]` avec le script [`Bunzip2_to_parquet.py`]
-(scripts/Bunzip2_to_parquet.py).
+Le corpus est construit à partir du dump de Wikipédia français de février 2026 disponible depuis [ce lien](https://dumps.wikimedia.org/frwiki/20260201/). La toute première étape a consisté à retirer toutes les balises (XML, wikicode) à l'exception des balises hyperliens `[[…]]` avec le script [`scripts/FirstDumpCleaning.py`](scripts/FirstDumpCleaning.py).
 
 La dernière version du corpus nettoyé (2,24 GB) est disponible [à ce lien](https://www.kaggle.com/datasets/gwendaltsang/wikipedia-fr-fevrier2026-presqueparfait), il contient 1,7 millions de lignes de petits textes de wikipédia FR. Bien que ce corpus résulte de plusieurs étapes de nettoyage successives, il n'est pas parfait.
 
