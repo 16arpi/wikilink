@@ -47,22 +47,29 @@ dataset = pd.read_parquet(INPUT)
 train, test = train_test_split(dataset, test_size=0.2, random_state=42)
 train, dev = train_test_split(train, test_size=0.1, random_state=42)
 
+# On charge nos deux dataset
 dataset_train = WikipediaDataset(train)
 dataset_dev = WikipediaDataset(dev)
 
+# On les place dans un dataloader pour faciliter
+# l'accès aux batchs côté GPU
 dl_train = DataLoader(dataset_train, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 dl_dev = DataLoader(dataset_dev, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
 
+# On instancie notre modèle
 model = BertLinkAnnotator(bert, map_device="cuda").to("cuda")
 
+# On instancie le pondérage, la loss et l'optimiseur
 calculated_weights = torch.tensor([1.0, 22.0, 4.0]).to("cuda")
 loss_fn = nn.CrossEntropyLoss(ignore_index=-100, weight=calculated_weights)
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-5)
 
+# Si jamais on a des checkpoint, on part de là...
 if FROM_CHECKPOINT:
     checkpoint = torch.load(FROM_CHECKPOINT, map_location=torch.device("cuda"))
     _, _ = model.load_state_dict(checkpoint, strict=False)
 
+# Fonction d'entraînement
 def run_train(epoch, dataloader, model, loss_fn, optimizer):
     size = len(train)
     model.train()
@@ -73,13 +80,20 @@ def run_train(epoch, dataloader, model, loss_fn, optimizer):
         attention_mask = batch["attention_mask"].to("cuda")
         output_ids = batch["output_ids"].to("cuda")
 
+        # Notre prediction est dans un batch
+        # on applatie donc notre tenseur
+        # pour récupérer les logits de la dernière couche
         pred = model(input_ids=input_ids, attention_mask=attention_mask)
         loss = loss_fn(pred.view(-1, pred.shape[-1]), output_ids.view(-1))
 
+        # on fait la rétropropagation
         loss.backward()
         optimizer.step()
+        # on remet les gradients à zero...
         optimizer.zero_grad()
 
+        # toutes les 50 étapes
+        # on enregistre un checkpoint
         if i % 50 == 0:
             loss, current = loss.item(), (i + 1) * BATCH_SIZE
             print(f"batch {i}. loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
@@ -91,7 +105,7 @@ def run_train(epoch, dataloader, model, loss_fn, optimizer):
             }
             torch.save(to_save, f"checkpoints/mlp_epoch_{epoch}_{i}.pth")
 
-# Cf. https://docs.pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html
+# Fonction de test (après chaque epoch)
 def run_test(dataloader, model, loss_fn):
     size = len(dev)
     num_batches = size // BATCH_SIZE + 1
@@ -108,6 +122,9 @@ def run_test(dataloader, model, loss_fn):
             test_loss += loss_fn(pred.view(-1, pred.shape[-1]), output_ids.view(-1))
 
             predictions = pred.argmax(dim=-1)
+            # On utilise un mask pour ne pas prendre
+            # en compte les tokens spéciaux dans le calcul
+            # de l'accuracy
             mask = (output_ids != -100)
 
             correct += (predictions[mask] == output_ids[mask]).sum().item()

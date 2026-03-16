@@ -64,11 +64,16 @@ class WikiLink:
         t_mask = torch.tensor([mask], dtype=torch.long).to(self.device)
 
         logits = self.model(input_ids=t_ids, attention_mask=t_mask)
+        # On utilise argmax pour prédire la catégorie du token
         preds = logits.argmax(dim=-1)
         preds = preds.tolist()
         preds = preds[0]
 
-
+        # Petite règle pour « harmoniser »
+        # l'annotation de liens, sans cela
+        # il y aurait des sous-mots isolés...
+        # Permet de palier les faibles performances
+        # du modèle...
         for i in range(1, len(preds) - 1):
             if preds[i-1] > 0 and preds[i+1] > 0 and preds[i] == 0:
                 preds[i] = 2
@@ -110,7 +115,7 @@ class WikiLink:
 
         # Supprimer tout lien en attente qui s'étend jusqu'au tout dernier token.
         # Sans cela, temp_link est discrètement ignoré lorsqu'aucun token dont l'étiquette est égale à 0
-        # ne suit le dernier token du lien.
+        # ne suit pas le dernier token du lien.
         if is_in_link:
             temp_link.append(text[last_char_idx:])
             link_text = quote(''.join(temp_link))

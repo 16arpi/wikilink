@@ -5,8 +5,6 @@ import pandas as pd
 import torch
 import tqdm
 import torch.nn as nn
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
 from transformers import AutoModel

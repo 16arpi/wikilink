@@ -17,6 +17,11 @@ LINK = re.compile(r'\[\[(.*?)\]\]')
 # Cette fonction permet de :
 # 1. enlever les balises mediawiki
 # 2. recupérer les segments de caractères liés à un lien
+
+# La difficulté est dans le fait que notre texte devient
+# plus petit à mesure qu'on parse les liens...
+# On doit donc garder en mémoire la position des liens
+# sachant qu'on enlève le balisage...
 def links(string):
     links = [(a.group(), a.group(1), a.start(), a.end()) for a in LINK.finditer(string)]
 
@@ -136,8 +141,6 @@ def make_dataset():
         final_texts.append(text)
 
         sets = get_in_out_sets(segments)
-
-        #print(segments)
 
         tokens = tokenizer(
             raw,

@@ -16,6 +16,7 @@ class BertLinkAnnotator(nn.Module):
     def __init__(self, camembert, nb_labels=3, map_device="cuda"):
         super(BertLinkAnnotator, self).__init__()
 
+        # On charge notre modèle Camembert
         self.bert = camembert
 
         # On ne veut pas ré-entraîner BERT, ce serait trop coûteux...
