@@ -5,6 +5,9 @@ import pandas as pd
 import torch
 import tqdm
 import torch.nn as nn
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
 
 from transformers import AutoModel
 from torch.utils.data import DataLoader
@@ -31,15 +34,16 @@ class WikipediaDataset(Dataset):
         }
 
 SEED = 42
-INPUT = "./data/parquet/dataset-small.parquet"
+INPUT = "./data/dataset.parquet"
 BERT_MODEL = "almanach/camembertv2-base"
-CHECKPOINT_PATH = "./wikilink/torch/mlp_epoch_4_550.pth"
+CHECKPOINT_PATH = "./wikilink/torch/mlp_epoch_7_550.pth"
+DEVICE = "mps"
 
 BATCH_SIZE = 128
 
 torch.manual_seed(SEED)
 
-bert = AutoModel.from_pretrained(BERT_MODEL, device_map="cuda")
+bert = AutoModel.from_pretrained(BERT_MODEL, device_map=DEVICE)
 
 print("Loading dataset...")
 dataset = pd.read_parquet(INPUT)
@@ -47,14 +51,14 @@ train, test = train_test_split(dataset, test_size=0.2, random_state=42)
 #train, test = [], test[:200]
 
 dataset_test = WikipediaDataset(test)
-dl_test = DataLoader(dataset_test, batch_size=BATCH_SIZE, shuffle=True, num_workers=4)
+dl_test = DataLoader(dataset_test, batch_size=BATCH_SIZE)
 
 size = len(test)
 num_batches = size // BATCH_SIZE + 1
 
 # Initialisation du modèle
-model = BertLinkAnnotator(bert).to("cuda")
-checkpoint = torch.load(CHECKPOINT_PATH, map_location=torch.device("cuda"))
+model = BertLinkAnnotator(bert).to(DEVICE)
+checkpoint = torch.load(CHECKPOINT_PATH, map_location=torch.device(DEVICE))
 missing_keys, unexpected_keys = model.load_state_dict(checkpoint, strict=False)
 
 loss_fn = nn.CrossEntropyLoss(ignore_index=-100)
@@ -68,10 +72,10 @@ model.bert.eval()
 test_loss, correct, total_tokens = 0, 0, 0
 
 with torch.no_grad():
-    for i, batch in tqdm.tqdm(enumerate(dl_test), total=(len(test) // BATCH_SIZE)):
-        input_ids = batch["input_ids"].to("cuda")
-        attention_mask = batch["attention_mask"].to("cuda")
-        output_ids = batch["output_ids"].to("cuda")
+    for batch in tqdm.tqdm(dl_test, total=(len(test) // BATCH_SIZE)):
+        input_ids = batch["input_ids"].to(DEVICE)
+        attention_mask = batch["attention_mask"].to(DEVICE)
+        output_ids = batch["output_ids"].to(DEVICE)
 
         pred = model(input_ids=input_ids, attention_mask=attention_mask)
         test_loss += loss_fn(pred.view(-1, pred.shape[-1]), output_ids.view(-1))
