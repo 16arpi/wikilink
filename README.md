@@ -81,7 +81,7 @@ Les embeddings de la dernière couche cachée de CamemBERT sont transmis à un r
 
 ### Entraînement du modèle
 
-Le modèle de NER a été entraîné pendant [10 epochs](https://github.com/16arpi/wikilink/blob/main/logs/training.txt) avec des batchs de 128 sequences sur un GPU Nvidia L4. Un corpus _dev_ a été isolé pour observer la performance du modèle sur des données inconnues au fur et à mesure de l'entraînement sur le corpus _train_. La _learning rate_ a été fixé à $`10^{-5}`$, le calcul de la loss passe par une mesure de _CrossEntropy_ et l'optimizer choisi est _AdamW_ (dans sa configuration PyTorch par défaut). Différents checkpoints ont été sauvegardés lors de l'entraînement. Celui retenu est celui de l'epoch 8 pour lequel le modèle montre les meilleurs performances (80% d'accuracy).
+Le modèle de NER a été entraîné pendant [10 epochs](https://github.com/16arpi/wikilink/blob/main/logs/training.txt) avec des batchs de 128 séquences sur un GPU Nvidia L4. Un corpus _dev_ a été isolé pour observer la performance du modèle sur des données inconnues au fur et à mesure de l'entraînement sur le corpus _train_. La _learning rate_ a été fixé à $`10^{-5}`$, le calcul de la loss passe par une mesure de _CrossEntropy_ et l'optimizer choisi est _AdamW_ (dans sa configuration PyTorch par défaut). Différents checkpoints ont été sauvegardés lors de l'entraînement. Celui retenu est celui de l'epoch 8 pour lequel le modèle montre les meilleurs performances (80% d'accuracy).
 
 La tâche d'annotation d'entités nommées est une tâche de classification de tokens aux classes largement déséquilibrées : le nombre de tokens sans entité domine ceux avec entités. Nous avons ainsi appliqué une pondération dans le calcul de la loss pour ne pas pénaliser – entre autres – la classe d'entrée dans une entité nommée (B-LINK). Les valeurs de la pondération ont été calculés à partir de la répartition des classes dans tout le corpus (script `weights.py`).
 
@@ -99,19 +99,19 @@ Il serait possible de stratifier les articles du corpus en fonction de leur dens
 
 ### Limites des performances du modèle
 
-Notre programme finale donne des résultats intéressants, se rapproche de ce qu'un paragraphe Wikipédia pourrait contenir comme liens. Cependant, en regardant les sorties de notre modèle, on constate différentes difficultés, telles que :
+Notre programme final donne des résultats intéressants, se rapproche de ce qu'un paragraphe Wikipédia pourrait contenir comme liens. Cependant, en regardant les sorties de notre modèle, on constate différentes difficultés, telles que :
 
 * une mauvaise identification des frontières de mot.
 * une mauvaise succession du marqueur B-LINK puis des marqueurs I-LINK.
 * parfois, une sûr-annotation d'entités nommées
 
-De telles difficultés pourraient être résolues par le recours à une couche CRF (conditional random fields).
+De telles difficultés pourraient être résolues par le recours à une couche CRF (conditional random fields) qui forcerait le modèle à respecter la structure BIO.
 
 ### Mauvaise liaison avec Wikipédia
 
-Notre idée initiale était d'entraîner notre modèle NER, de construire une base de donnée vectorielle avec des embeddings générés à partir des fiches Wikipédia, puis utiliser les embedding des tokens des entités nommées pour retrouver sa fiche Wikipédia associée. Cela s'est avéré trop long et complexe à développer (aussi en terme de mémoire, car il aurait fallu produire des embeddings pour tout Wikipédia...).
+Notre idée initiale était d'entraîner notre modèle NER, de construire une base de donnée vectorielle avec des embeddings générés à partir des fiches Wikipédia, puis utiliser les embeddings des tokens des entités nommées pour retrouver la fiche Wikipédia associée. Cela s'est avéré trop long et complexe à développer (aussi en terme de mémoire, car il aurait fallu produire des embeddings pour tout Wikipédia...).
 
-Finalement, nous avons trouvé une solution plus simple. Chaque entité nommée identifiée est transformée en lien HTML dont l'URL est la page de recherche de Wikipédia complétée du texte du lien. Dans de nombreux cas, Wikipédia redirige directement vers la fiche Wikipédia de l'entité nommée.
+Finalement, nous avons trouvé une solution plus simple. Chaque entité nommée identifiée est transformée en lien HTML dont l'URL est la page de recherche de Wikipédia complétée du texte du lien. Dans de nombreux cas, Wikipédia redirige directement vers la fiche Wikipédia de l'entité nommée. Cela rend la liaison très légère.
 
 ### Pistes futures
 
